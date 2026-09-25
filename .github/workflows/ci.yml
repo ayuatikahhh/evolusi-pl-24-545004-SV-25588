@@ -2,7 +2,6 @@ name: Continuous Deployment Pipeline
 
 on:
   push:
-    branches: [main, dev, "feature/**"]
   pull_request:
     branches: [main, dev]
 
