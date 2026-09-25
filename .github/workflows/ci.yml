@@ -2,11 +2,16 @@ name: Continuous Deployment Pipeline
 
 on:
   push:
+    branches:
+      - main
+      - dev
+      - 'feature/**'
   pull_request:
-    branches: [main, dev]
+    branches:
+      - main
+      - dev
 
 jobs:
-  # JOB 1: Build (composer install tanpa dev, simpan artifact)
   build:
     name: Build
     runs-on: ubuntu-latest
@@ -17,7 +22,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: "8.4"
+          php-version: '8.4'
           coverage: none
 
       - name: Install Dependencies
@@ -29,7 +34,6 @@ jobs:
           name: vendor-artifact
           path: vendor/
 
-  # JOB 2: Test (uji fitur & unit test secara otomatis)
   test:
     name: Automated Tests
     needs: build
@@ -41,7 +45,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: "8.4"
+          php-version: '8.4'
           coverage: none
 
       - name: Install Dependencies for Testing
@@ -56,7 +60,6 @@ jobs:
       - name: Run Test Suite
         run: php artisan test
 
-  # JOB 3: Staging (simulasi deploy ke server tiruan)
   staging:
     name: Staging Deployment
     needs: test
@@ -67,7 +70,6 @@ jobs:
           echo "Menjalankan deployment otomatis ke server staging..."
           echo "Simulasi verifikasi lingkungan staging berhasil."
 
-  # JOB 4: Production (hanya branch main + required reviewer)
   production:
     name: Production Deployment
     needs: [test, staging]
@@ -78,6 +80,5 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Run 7 Deployment Steps (deploy.sh)
-        run: |
-          bash deploy.sh
+      - name: Run 7 Deployment Steps
+        run: bash deploy.sh
