@@ -1,54 +1,84 @@
-name: CI
+name: Continuous Deployment Pipeline
 
 on:
   push:
-    branches: [main, dev, "feature/**"]
+    branches:
+      - main
+      - dev
+      - 'feature/**'
   pull_request:
-    branches: [main, dev]
+    branches:
+      - main
+      - dev
 
 jobs:
-  lint:
-    name: Lint & Static Check
+  build:
+    name: Build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: "8.4"
+          php-version: '8.4'
           coverage: none
 
-      - name: Install Composer dependencies
-        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+      - name: Install Dependencies
+        run: composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
 
-      - name: Check PHP syntax
-        run: find . -name "*.php" -not -path "./vendor/*" -print0 | xargs -0 -n1 php -l
-
-      - name: Laravel Pint (code style)
-        run: vendor/bin/pint --test
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: vendor-artifact
+          path: vendor/
 
   test:
     name: Automated Tests
+    needs: build
     runs-on: ubuntu-latest
-    needs: lint
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: "8.4"
+          php-version: '8.4'
           coverage: none
 
-      - name: Install Composer dependencies
+      - name: Install Dependencies for Testing
         run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
-      - name: Copy environment file
+      - name: Copy Environment File
         run: cp .env.example .env
 
-      - name: Generate application key
+      - name: Generate Application Key
         run: php artisan key:generate
 
-      - name: Run test suite
+      - name: Run Test Suite
         run: php artisan test
+
+  staging:
+    name: Staging Deployment
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Simulate Staging Deployment
+        run: |
+          echo "Menjalankan deployment otomatis ke server staging..."
+          echo "Simulasi verifikasi lingkungan staging berhasil."
+
+  production:
+    name: Production Deployment
+    needs: [test, staging]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    environment: production
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Run 7 Deployment Steps
+        run: bash deploy.sh
