@@ -56,3 +56,12 @@ Sistem menerapkan alur Git branch terlindungi (*branch protection*):
 ## Endpoint
 POST /calculate — lihat `app/Http/Controllers/BudgetController.php`.
 
+## Menjalankan dengan Docker
+
+    docker build -t smartsplit:v1 .
+    docker run -d --name smartsplit-app -p 8080:8000 \
+      -e APP_KEY="$(docker run --rm smartsplit:v1 php artisan key:generate --show)" \
+      smartsplit:v1
+
+Buka http://localhost:8080 (aplikasi) dan http://localhost:8080/api/presets (API).
+Hentikan: `docker rm -f smartsplit-app`.
