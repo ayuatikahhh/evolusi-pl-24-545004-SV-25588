@@ -1,0 +1,38 @@
+# --- Dependensi: dipasang ulang DI DALAM image ---
+vendor
+**/node_modules
+
+# --- Git & CI: tidak berguna di dalam image ---
+.git
+.gitignore
+.gitattributes
+.github
+
+# --- Rahasia & konfigurasi lokal: JANGAN PERNAH masuk image ---
+.env
+.env.*
+
+# --- Aplikasi Vue: aplikasi terpisah, bukan bagian image Laravel ---
+frontend
+
+# --- State lokal yang akan merusak container ---
+database/*.sqlite
+bootstrap/cache/*.php
+storage/logs/*
+storage/framework/views/*.php
+storage/framework/cache/data/*
+storage/framework/sessions/*
+public/hot
+public/storage
+.phpunit.result.cache
+.phpunit.cache
+
+# --- Sampah editor / OS ---
+.DS_Store
+.idea
+.vscode
+
+# --- File Docker sendiri ---
+Dockerfile
+.dockerignore
+docker-compose*.yml
