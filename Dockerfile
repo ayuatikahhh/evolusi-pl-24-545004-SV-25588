@@ -32,9 +32,19 @@ FROM php:8.4.27-cli-alpine3.24 AS runtime
 
 WORKDIR /var/www/html
 
-# Hanya hasil build yang dipindahkan. Composer, git, unzip TIDAK ikut.
-COPY --from=build /app ./
+# --chown: berkas langsung dimiliki www-data, bukan root
+COPY --from=build --chown=www-data:www-data /app ./
+
+# Folder yang harus bisa ditulis aplikasi
+RUN chmod -R 775 storage bootstrap/cache database
+
+# Mulai dari titik ini, semua perintah (termasuk CMD) berjalan sebagai www-data
+USER www-data
 
 EXPOSE 8000
+
+# Docker memeriksa kesehatan aplikasi dengan memanggil route /up milik Laravel
+HEALTHCHECK --interval=10s --timeout=3s --start-period=20s --retries=3 \
+  CMD wget -q -O /dev/null http://127.0.0.1:8000/up || exit 1
 
 CMD ["sh", "-c", "touch database/database.sqlite && php artisan migrate --force && php artisan db:seed --class=BudgetPresetSeeder --force && php artisan serve --host=0.0.0.0 --port=8000"]
