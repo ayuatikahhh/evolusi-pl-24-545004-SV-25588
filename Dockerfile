@@ -1,9 +1,9 @@
 # ==========================================================
 # TAHAP 1: build  (boleh besar, tidak akan ikut ke image akhir)
 # ==========================================================
-FROM composer:2 AS composer_bin
+FROM composer:2.11.1 AS composer_bin
 
-FROM php:8.4-cli-alpine AS build
+FROM php:8.4.27-cli-alpine3.24 AS build
 
 ENV COMPOSER_ALLOW_SUPERUSER=1
 
@@ -28,7 +28,7 @@ RUN mkdir -p bootstrap/cache storage/framework/cache/data storage/framework/sess
 # ==========================================================
 # TAHAP 2: runtime  (hanya yang dibutuhkan saat melayani)
 # ==========================================================
-FROM php:8.4-cli-alpine AS runtime
+FROM php:8.4.27-cli-alpine3.24 AS runtime
 
 WORKDIR /var/www/html
 
