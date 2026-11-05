@@ -65,3 +65,14 @@ POST /calculate — lihat `app/Http/Controllers/BudgetController.php`.
 
 Buka http://localhost:8080 (aplikasi) dan http://localhost:8080/api/presets (API).
 Hentikan: `docker rm -f smartsplit-app`.
+
+## Image Docker (GHCR)
+
+Image dipublikasikan ke GitHub Container Registry oleh workflow `docker-publish.yml`.
+
+    docker pull ghcr.io/ayuatikahhh/smartsplit:latest
+    docker run -d --name smartsplit-app -p 8080:8000 \
+      -e APP_KEY="$(docker run --rm ghcr.io/ayuatikahhh/smartsplit:latest php artisan key:generate --show)" \
+      ghcr.io/ayuatikahhh/smartsplit:latest
+
+Build lokal: `docker build -t smartsplit:after .` (Dockerfile multi-stage, base Alpine, berjalan sebagai non-root dan memiliki HEALTHCHECK).
